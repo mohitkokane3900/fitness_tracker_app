@@ -4,6 +4,7 @@ import 'calorie_tracker_screen.dart';
 import 'summary_screen.dart';
 import 'nutrition_summary_screen.dart';
 import 'past_workouts_screen.dart';
+import 'workout_programs_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   final bool dark;
@@ -122,7 +123,14 @@ class HomeScreen extends StatelessWidget {
                 width: double.infinity,
                 height: 48,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const WorkoutProgramsScreen(),
+                      ),
+                    );
+                  },
                   child: const Text('Workout Programs'),
                 ),
               ),
