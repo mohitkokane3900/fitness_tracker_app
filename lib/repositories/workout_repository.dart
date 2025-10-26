@@ -41,4 +41,43 @@ class WorkoutRepository {
       whereArgs: [sessionId],
     );
   }
+
+  Future<Map<String, int>> getWorkoutsPerWeekday() async {
+    final db = await dbHelper.database;
+    final rows = await db.rawQuery('''
+      SELECT workout_session_id, MIN(session_date) as first_date
+      FROM workout_sets
+      GROUP BY workout_session_id
+    ''');
+
+    final counts = {
+      'Mon': 0,
+      'Tue': 0,
+      'Wed': 0,
+      'Thu': 0,
+      'Fri': 0,
+      'Sat': 0,
+      'Sun': 0,
+    };
+
+    for (final r in rows) {
+      final d = DateTime.parse(r['first_date'] as String);
+      final weekday = d.weekday;
+      final label = weekday == 1
+          ? 'Mon'
+          : weekday == 2
+          ? 'Tue'
+          : weekday == 3
+          ? 'Wed'
+          : weekday == 4
+          ? 'Thu'
+          : weekday == 5
+          ? 'Fri'
+          : weekday == 6
+          ? 'Sat'
+          : 'Sun';
+      counts[label] = (counts[label] ?? 0) + 1;
+    }
+    return counts;
+  }
 }
