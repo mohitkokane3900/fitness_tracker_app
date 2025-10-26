@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'workout_log_screen.dart';
+import 'calorie_tracker_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   final bool dark;
@@ -22,7 +23,6 @@ class HomeScreen extends StatelessWidget {
         padding: const EdgeInsets.all(24),
         child: SingleChildScrollView(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               const Text(
                 'Welcome to Fitness Tracker App',
@@ -57,7 +57,14 @@ class HomeScreen extends StatelessWidget {
                 width: double.infinity,
                 height: 48,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const CalorieTrackerScreen(),
+                      ),
+                    );
+                  },
                   child: const Text('Calorie Tracker'),
                 ),
               ),
