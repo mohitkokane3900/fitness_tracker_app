@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../repositories/calorie_repository.dart';
+import 'package:intl/intl.dart';
 
 class CalorieTrackerScreen extends StatefulWidget {
   const CalorieTrackerScreen({super.key});
@@ -7,20 +9,35 @@ class CalorieTrackerScreen extends StatefulWidget {
 }
 
 class _CalorieTrackerScreenState extends State<CalorieTrackerScreen> {
+  final repo = CalorieRepository();
+
   final TextEditingController mealCtl = TextEditingController();
   final TextEditingController calCtl = TextEditingController();
   final TextEditingController proteinCtl = TextEditingController();
   final TextEditingController fatCtl = TextEditingController();
   final TextEditingController carbsCtl = TextEditingController();
 
-  final List<Map<String, dynamic>> meals = [];
+  List<Map<String, dynamic>> meals = [];
 
-  void _addMeal() {
+  @override
+  void initState() {
+    super.initState();
+    _refreshMeals();
+  }
+
+  Future<void> _refreshMeals() async {
+    final data = await repo.getAllMeals();
+    setState(() {
+      meals = data;
+    });
+  }
+
+  Future<void> _addMeal() async {
     final mealName = mealCtl.text.trim();
-    final cal = calCtl.text.trim();
-    final p = proteinCtl.text.trim();
-    final f = fatCtl.text.trim();
-    final c = carbsCtl.text.trim();
+    final cal = int.tryParse(calCtl.text.trim()) ?? 0;
+    final p = double.tryParse(proteinCtl.text.trim()) ?? 0;
+    final f = double.tryParse(fatCtl.text.trim()) ?? 0;
+    final c = double.tryParse(carbsCtl.text.trim()) ?? 0;
 
     if (mealName.isEmpty) {
       ScaffoldMessenger.of(
@@ -29,26 +46,28 @@ class _CalorieTrackerScreenState extends State<CalorieTrackerScreen> {
       return;
     }
 
-    setState(() {
-      meals.insert(0, {
-        'meal_desc': mealName,
-        'calories': cal,
-        'protein_g': p,
-        'fat_g': f,
-        'carbs_g': c,
-        'time': DateTime.now().toString(),
-      });
-    });
+    await repo.addMeal(
+      mealDesc: mealName,
+      calories: cal,
+      proteinG: p,
+      fatG: f,
+      carbsG: c,
+      dateTime: DateTime.now(),
+    );
 
     mealCtl.clear();
     calCtl.clear();
     proteinCtl.clear();
     fatCtl.clear();
     carbsCtl.clear();
+
+    await _refreshMeals();
   }
 
   @override
   Widget build(BuildContext context) {
+    final f = DateFormat('MMM d, h:mm a');
+
     return Scaffold(
       appBar: AppBar(title: const Text('Calorie Tracker')),
       body: Padding(
@@ -125,12 +144,33 @@ class _CalorieTrackerScreenState extends State<CalorieTrackerScreen> {
                       itemCount: meals.length,
                       itemBuilder: (context, index) {
                         final row = meals[index];
+                        final dt = DateTime.parse(row['date_time'] as String);
+                        final timeStr = f.format(dt);
+                        final mealName = row['meal_desc'] ?? '';
+                        final calAmt = row['calories'] ?? 0;
+                        final p = row['protein_g'] ?? 0;
+                        final fat = row['fat_g'] ?? 0;
+                        final carb = row['carbs_g'] ?? 0;
                         return Card(
                           margin: const EdgeInsets.only(bottom: 12),
                           child: Padding(
                             padding: const EdgeInsets.all(12),
-                            child: Text(
-                              '${row['meal_desc']}\nCalories: ${row['calories']}\nProtein: ${row['protein_g']} g\nFat: ${row['fat_g']} g\nCarbs: ${row['carbs_g']} g\n${row['time']}',
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  timeStr,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text('$mealName'),
+                                Text('Calories: $calAmt'),
+                                Text('Protein: ${p.toString()} g'),
+                                Text('Fat: ${fat.toString()} g'),
+                                Text('Carbs: ${carb.toString()} g'),
+                              ],
                             ),
                           ),
                         );
