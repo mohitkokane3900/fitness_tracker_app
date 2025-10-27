@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../repositories/calorie_repository.dart';
 
+// Shows total calories/macros for day/week/month + donut chart
 class NutritionSummaryScreen extends StatefulWidget {
   const NutritionSummaryScreen({super.key});
 
@@ -11,7 +12,10 @@ class NutritionSummaryScreen extends StatefulWidget {
 class _NutritionSummaryScreenState extends State<NutritionSummaryScreen> {
   final repo = CalorieRepository();
 
+  // which range we're showing: 'day', 'week', 'month'
   String mode = 'day';
+
+  // totals to display
   int totalCalories = 0;
   double proteinG = 0;
   double fatG = 0;
@@ -20,9 +24,10 @@ class _NutritionSummaryScreenState extends State<NutritionSummaryScreen> {
   @override
   void initState() {
     super.initState();
-    _loadMode('day');
+    _loadMode('day'); // default view
   }
 
+  // Load the totals for a given mode and update UI
   Future<void> _loadMode(String newMode) async {
     Duration range;
     if (newMode == 'day') {
@@ -39,6 +44,7 @@ class _NutritionSummaryScreenState extends State<NutritionSummaryScreen> {
     final f = totals['fat'] ?? 0;
     final c = totals['carbs'] ?? 0;
 
+    // If calories weren't logged, estimate from macros (4/4/9 rule)
     double calFromRepo = totals['cal'] ?? 0;
     if (calFromRepo <= 0) {
       calFromRepo = (p * 4) + (c * 4) + (f * 9);
@@ -55,6 +61,7 @@ class _NutritionSummaryScreenState extends State<NutritionSummaryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Text label above the donut
     final labelText = mode == 'day'
         ? "Today"
         : mode == 'week'
@@ -67,6 +74,7 @@ class _NutritionSummaryScreenState extends State<NutritionSummaryScreen> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
+            // Buttons to switch between Day / Week / Month
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -92,12 +100,18 @@ class _NutritionSummaryScreenState extends State<NutritionSummaryScreen> {
                 ),
               ],
             ),
+
             const SizedBox(height: 16),
+
+            // Total calories text
             Text(
               '$labelText: $totalCalories Calories',
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
+
             const SizedBox(height: 16),
+
+            // Donut chart (CustomPaint draws it)
             Expanded(
               child: LayoutBuilder(
                 builder: (context, constraints) {
@@ -112,7 +126,10 @@ class _NutritionSummaryScreenState extends State<NutritionSummaryScreen> {
                 },
               ),
             ),
+
             const SizedBox(height: 16),
+
+            // Legend for donut colors
             _legendRow(
               color: const Color(0xFF5D1049),
               label: 'Protein',
@@ -136,6 +153,7 @@ class _NutritionSummaryScreenState extends State<NutritionSummaryScreen> {
     );
   }
 
+  // Small row: colored box + label + grams
   Widget _legendRow({
     required Color color,
     required String label,
@@ -155,6 +173,7 @@ class _NutritionSummaryScreenState extends State<NutritionSummaryScreen> {
   }
 }
 
+// Painter that draws the donut chart for macros
 class _MacroDonutPainter extends CustomPainter {
   final double proteinG;
   final double fatG;
@@ -168,13 +187,16 @@ class _MacroDonutPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    // d = diameter of the donut
     final d = size.shortestSide * 0.8;
     final center = Offset(size.width / 2, size.height / 2);
     final rect = Rect.fromCenter(center: center, width: d, height: d);
     final radius = d / 2;
 
+    // total macros so we can get percentages
     final total = proteinG + fatG + carbsG;
 
+    // If no data, draw an empty grey ring
     if (total <= 0) {
       final bgPaint = Paint()
         ..color = Colors.grey.shade300
@@ -188,6 +210,7 @@ class _MacroDonutPainter extends CustomPainter {
       return;
     }
 
+    // Paints for each macro color
     final proteinPaint = Paint()
       ..color = const Color(0xFF5D1049)
       ..style = PaintingStyle.fill;
@@ -198,24 +221,31 @@ class _MacroDonutPainter extends CustomPainter {
       ..color = const Color(0xFF1A237E)
       ..style = PaintingStyle.fill;
 
+    // Start angle at top (-90 degrees-ish)
     double startAngle = -3.14159 / 2;
 
+    // Protein slice
     final proteinSweep = (proteinG / total) * (3.14159 * 2);
     canvas.drawArc(rect, startAngle, proteinSweep, true, proteinPaint);
     startAngle += proteinSweep;
 
+    // Carbs slice
     final carbsSweep = (carbsG / total) * (3.14159 * 2);
     canvas.drawArc(rect, startAngle, carbsSweep, true, carbsPaint);
     startAngle += carbsSweep;
 
+    // Fat slice
     final fatSweep = (fatG / total) * (3.14159 * 2);
     canvas.drawArc(rect, startAngle, fatSweep, true, fatPaint);
 
+    // Cut out the center to make a donut
     final holePaint = Paint()
       ..color = Colors.white
       ..style = PaintingStyle.fill;
     canvas.drawCircle(center, radius * 0.5, holePaint);
 
+    // The following code paints small text labels near each slice
+    // (Protein / Carbs / Fat with grams)
     final textPainter = TextPainter(
       textAlign: TextAlign.center,
       textDirection: TextDirection.ltr,
@@ -279,6 +309,7 @@ class _MacroDonutPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _MacroDonutPainter oldDelegate) {
+    // Repaint when macro values change
     return oldDelegate.proteinG != proteinG ||
         oldDelegate.fatG != fatG ||
         oldDelegate.carbsG != carbsG;

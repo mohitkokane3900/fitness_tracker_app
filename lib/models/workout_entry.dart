@@ -1,11 +1,12 @@
+// Represents a single workout set (exercise, weight, reps, etc.)
 class WorkoutEntry {
-  int? id;
-  String workoutSessionId;
-  String exercise;
-  String? notes;
-  double weight;
-  int reps;
-  DateTime sessionDate;
+  int? id; // null before it's inserted into DB
+  String workoutSessionId; // unique id for the workout session/day
+  String exercise; // exercise name (ex: Bench Press)
+  String? notes; // optional notes user typed
+  double weight; // weight used for this set
+  int reps; // reps done for this set
+  DateTime sessionDate; // when the set was logged
 
   WorkoutEntry({
     this.id,
@@ -17,6 +18,7 @@ class WorkoutEntry {
     required this.sessionDate,
   });
 
+  // Convert this object to a Map for inserting into SQLite
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -29,6 +31,7 @@ class WorkoutEntry {
     };
   }
 
+  // Create a WorkoutEntry object from a DB row (Map)
   factory WorkoutEntry.fromMap(Map<String, dynamic> m) {
     return WorkoutEntry(
       id: m['id'] as int?,

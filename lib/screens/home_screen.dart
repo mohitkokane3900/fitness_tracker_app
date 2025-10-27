@@ -6,9 +6,10 @@ import 'nutrition_summary_screen.dart';
 import 'past_workouts_screen.dart';
 import 'workout_programs_screen.dart';
 
+// Main menu screen with all the navigation buttons
 class HomeScreen extends StatelessWidget {
-  final bool dark;
-  final ValueChanged<bool> onThemeChanged;
+  final bool dark; // whether dark mode is currently on
+  final ValueChanged<bool> onThemeChanged; // callback to toggle theme
 
   const HomeScreen({
     super.key,
@@ -18,7 +19,7 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bg = Theme.of(context).colorScheme.surface;
+    final bg = Theme.of(context).colorScheme.surface; // background color
     return Scaffold(
       appBar: AppBar(title: const Text('Fitness Tracker')),
       body: Container(
@@ -33,6 +34,8 @@ class HomeScreen extends StatelessWidget {
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 24),
+
+              // Dark mode toggle
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -40,7 +43,10 @@ class HomeScreen extends StatelessWidget {
                   Switch(value: dark, onChanged: onThemeChanged),
                 ],
               ),
+
               const SizedBox(height: 24),
+
+              // Button: Workout Log
               SizedBox(
                 width: double.infinity,
                 height: 48,
@@ -57,6 +63,8 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
+
+              // Button: Calorie Tracker
               SizedBox(
                 width: double.infinity,
                 height: 48,
@@ -73,6 +81,8 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
+
+              // Button: Workout Summary / bar chart
               SizedBox(
                 width: double.infinity,
                 height: 48,
@@ -87,6 +97,8 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
+
+              // Button: Nutrition Summary / donut chart
               SizedBox(
                 width: double.infinity,
                 height: 48,
@@ -103,6 +115,8 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
+
+              // Button: Past Workouts
               SizedBox(
                 width: double.infinity,
                 height: 48,
@@ -119,6 +133,8 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
+
+              // Button: Workout Programs
               SizedBox(
                 width: double.infinity,
                 height: 48,

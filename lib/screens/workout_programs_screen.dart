@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
+// Static "programs" screen showing example workout templates
 class WorkoutProgramsScreen extends StatelessWidget {
   const WorkoutProgramsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Hardcoded sample programs
     final programs = [
       _ProgramData(
         title: 'Full Body Plan',
@@ -70,6 +72,7 @@ class WorkoutProgramsScreen extends StatelessWidget {
   }
 }
 
+// Card for each workout program in the list
 class _ProgramCard extends StatelessWidget {
   final _ProgramData program;
   const _ProgramCard({required this.program});
@@ -79,15 +82,18 @@ class _ProgramCard extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16), // ✅ FIXED
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Program title
             Text(
               program.title,
               style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
             ),
             const SizedBox(height: 12),
+
+            // List of exercises in that program
             Column(
               children: program.exercises.map((ex) {
                 return _ProgramExerciseRow(data: ex);
@@ -100,6 +106,7 @@ class _ProgramCard extends StatelessWidget {
   }
 }
 
+// Row for a single exercise in a program
 class _ProgramExerciseRow extends StatelessWidget {
   final _ExerciseData data;
   const _ProgramExerciseRow({required this.data});
@@ -123,12 +130,14 @@ class _ProgramExerciseRow extends StatelessWidget {
   }
 }
 
+// Model for an entire program (title + exercises)
 class _ProgramData {
   final String title;
   final List<_ExerciseData> exercises;
   _ProgramData({required this.title, required this.exercises});
 }
 
+// Model for a single exercise in a program
 class _ExerciseData {
   final String name;
   final int sets;

@@ -1,8 +1,10 @@
 import '../data/database_helper.dart';
 
+// All database actions related to calories/macros live here
 class CalorieRepository {
   final dbHelper = DatabaseHelper();
 
+  // Add a meal (one row) to calorie_logs table
   Future<int> addMeal({
     required String mealDesc,
     required int calories,
@@ -22,18 +24,21 @@ class CalorieRepository {
     });
   }
 
+  // Get every meal in reverse time order (newest first)
   Future<List<Map<String, dynamic>>> getAllMeals() async {
     final db = await dbHelper.database;
     final rows = await db.query('calorie_logs', orderBy: 'date_time DESC');
     return rows;
   }
 
+  // Get total cals/macros for a time range (like last 7 days)
   Future<Map<String, double>> getTotalsByRange(Duration range) async {
     final db = await dbHelper.database;
 
     final now = DateTime.now();
     final cutoff = now.subtract(range);
 
+    // SUM(...) gives us total calories, protein, fat, carbs after cutoff
     final rows = await db.rawQuery(
       '''
       SELECT
@@ -47,10 +52,12 @@ class CalorieRepository {
       [cutoff.toIso8601String()],
     );
 
+    // If there's no data, just return zeros
     if (rows.isEmpty) {
       return {'cal': 0, 'protein': 0, 'fat': 0, 'carbs': 0};
     }
 
+    // Pull values from the query result
     final row = rows.first;
     final cal = (row['total_cal'] as num?)?.toDouble() ?? 0.0;
     final protein = (row['total_protein'] as num?)?.toDouble() ?? 0.0;
